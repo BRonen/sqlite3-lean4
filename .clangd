@@ -1,6 +1,0 @@
-CompileFlags:
-  Add:
-    - "-I/nix/store/wlavaybjbzgllhq11lib6qgr7rm8imgp-glibc-2.39-52-dev/include/"
-    - "-I/nix/store/8r55amvr43sm771rgm0sszd05rm8j1cr-sqlite-3.46.0-dev/include/"
-    - "-I/nix/store/4rz4z2bkb68vwbdxcwq0jxh2fyhhiqkh-clang-wrapper-18.1.8/resource-root/include/"
-    - "-I/nix/store/10clq066aqh4ajyzn4layvybzvmigx7s-lean4-4.10.0/include/"

@@ -58,6 +58,6 @@ def main : IO Unit := do
     match ← conn.prepare "select * from users;" with
      | Except.error e => println e
      | Except.ok c =>
-       printUser count.toNat c
+       printUser count.toNatClampNeg c
   | Except.error e => println s!"error: {e}"
   println s!"Hello, {conn}"

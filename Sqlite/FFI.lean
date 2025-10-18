@@ -66,11 +66,11 @@ structure Cursor where
   cursor : RawCursor
   step : IO Bool
   bindText : UInt32 → String → IO Unit
-  bindInt : UInt32 → Int → IO Unit
+  bindInt : UInt32 → Int32 → IO Unit
   reset : IO Unit
   columnsCount : IO UInt32
   columnText : UInt32 → IO String
-  columnInt : UInt32 → IO Int
+  columnInt : UInt32 → IO Int32
   cursorExplain : UInt32 → IO Int
 
 structure Connection where

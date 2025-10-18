@@ -5,24 +5,37 @@ package sqlite
 
 lean_lib Sqlite
 
+def compiler := "leanc"
+
+target sqlite.o pkg : FilePath := do
+  let oFile := pkg.dir / "native" / "sqlite3.o"
+  let srcJob ← inputTextFile <| pkg.dir / "native" / "sqlite3.c"
+  let sqliteHeaders := pkg.dir / "native"
+  -- Ensure that both sqlite3.h and sqlite3ext.h are available during compilation
+  let weakArgs := #["-I", sqliteHeaders.toString]
+  buildO oFile srcJob weakArgs #["-fPIC"] compiler getLeanTrace
+
+target sqliteffi.o pkg : FilePath := do
+  let oFile := pkg.dir / "native" / "sqliteffi.o"
+  let srcJob ← inputTextFile <| pkg.dir / "native" / "sqliteffi.c"
+  let sqliteHeaders := pkg.dir / "native"
+  let weakArgs := #["-I", (← getLeanIncludeDir).toString, "-I", sqliteHeaders.toString]
+  buildO oFile srcJob weakArgs #["-fPIC"] compiler getLeanTrace
+
+extern_lib libsqlite pkg := do
+  let sqliteO ← sqlite.o.fetch
+  let ffiO ← sqliteffi.o.fetch
+  let name := nameToStaticLib "sqliteffi"
+  buildStaticLib (pkg.staticLibDir / name) #[sqliteO, ffiO]
+
 @[default_target]
 lean_exe sqlite where
   root := `Main
-  moreLinkArgs := #["-lsqlite3"]
+  moreLinkObjs := #[libsqlite]
 
+@[test_driver]
 lean_exe Tests.Sqlite where
-  moreLinkArgs := #["-lsqlite3"]
-
-target sqliteffi.o pkg : FilePath := do
-  let oFile := pkg.buildDir / "native" / "sqliteffi.o"
-  let srcJob ← inputTextFile <| pkg.dir / "native" / "ffi.c"
-  let weakArgs := #["-I", (← getLeanIncludeDir).toString, "-I/nix/store/8r55amvr43sm771rgm0sszd05rm8j1cr-sqlite-3.46.0-dev/include/"]
-  buildO oFile srcJob weakArgs #["-fPIC"] "clang" getLeanTrace
-
-extern_lib libsqliteffi pkg := do
-  let ffiO ← sqliteffi.o.fetch
-  let name := nameToStaticLib "sqliteffi"
-  buildStaticLib (pkg.nativeLibDir / name) #[ffiO]
+  moreLinkObjs := #[libsqlite]
 
 require LSpec from git
-  "https://github.com/argumentcomputer/lspec/" @ "8a51034d049c6a229d88dd62f490778a377eec06"
+  "https://github.com/argumentcomputer/lspec/" @ "1fc461a9b83eeb68da34df72cec2ef1994e906cb"
